@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+
+# Node
+node_modules/
+dist/
+
+# Electron
+release/
+
+# IDE
+.vscode/
+
+# Database
+*.db
+
+# OS
+.DS_Store
+Thumbs.db
