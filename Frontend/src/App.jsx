@@ -1,122 +1,165 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { useState, useEffect } from "react";
+import { checkBackendHealth } from "./services/api";
 
 function App() {
-  const [count, setCount] = useState(0)
+
+  const [backendStatus, setBackendStatus] = useState("checking");
+
+  useEffect(() => {
+
+    console.log("Health check started");
+
+    const checkHealth = () => {
+
+      checkBackendHealth()
+        .then((data) => {
+
+          console.log("Received data:", data);
+
+          if (data.status === "healthy") {
+            setBackendStatus("connected");
+          } else {
+            setBackendStatus("disconnected");
+          }
+
+        })
+        .catch((error) => {
+
+          console.error("Health check failed:", error);
+
+          setBackendStatus("disconnected");
+
+        });
+
+    };
+
+    // Check immediately when component loads
+    checkHealth();
+
+    // Repeat health check every 3 seconds
+    const interval = setInterval(checkHealth, 3000);
+
+    // Cleanup interval when component unmounts
+    return () => clearInterval(interval);
+
+  }, []);
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
+    <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6">
+
+      <div className="w-full max-w-6xl">
+
+        {/* Header */}
+        <div className="mb-10 text-center">
+
+          <h1 className="text-4xl font-bold text-blue-400 mb-3">
+            SignSpeak AI
+          </h1>
+
+          <p className="text-slate-400">
+            Indian Sign Language to Speech Translator
           </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
 
-      <div className="ticks"></div>
+          {/* Backend Connection Status */}
+          <div className="mt-4">
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+            <span className={`text-sm font-medium ${backendStatus === "connected"
+                ? "text-green-400"
+                : backendStatus === "disconnected"
+                  ? "text-red-400"
+                  : "text-yellow-400"
+              }`}>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+              {backendStatus === "connected"
+                ? "● Backend Connected"
+                : backendStatus === "disconnected"
+                  ? "● Backend Disconnected"
+                  : "● Checking Backend..."}
+
+            </span>
+
+          </div>
+
+        </div>
+
+        {/* Main Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          {/* LEFT SIDE - CAMERA */}
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+
+            <h2 className="text-xl font-semibold mb-5">
+              Live Camera
+            </h2>
+
+            <div className="aspect-video bg-slate-800 rounded-xl flex items-center justify-center mb-6">
+
+              <p className="text-slate-400">
+                Camera Preview Coming Soon
+              </p>
+
+            </div>
+
+            <button className="w-full bg-blue-600 hover:bg-blue-700 transition rounded-xl py-3 font-semibold">
+              Start Recognition
+            </button>
+
+          </div>
+
+          {/* RIGHT SIDE - GESTURE DETECTION */}
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+
+            <h2 className="text-xl font-semibold mb-5">
+              Gesture Detection
+            </h2>
+
+            <div className="bg-slate-800 rounded-xl p-5 mb-5">
+
+              <p className="text-sm text-slate-400 mb-2">
+                Detection Status
+              </p>
+
+              <h3 className="text-lg font-semibold text-yellow-400">
+                Waiting for gesture...
+              </h3>
+
+            </div>
+
+            <div className="bg-slate-800 rounded-xl p-5 mb-5">
+
+              <p className="text-sm text-slate-400 mb-3">
+                Recognized Sign
+              </p>
+
+              <h2 className="text-4xl font-bold text-blue-400">
+                ---
+              </h2>
+
+            </div>
+
+            <div className="bg-slate-800 rounded-xl p-5">
+
+              <p className="text-sm text-slate-400 mb-3">
+                Speech Output
+              </p>
+
+              <button className="bg-emerald-600 hover:bg-emerald-700 transition px-5 py-2 rounded-lg font-medium">
+                🔊 Speak Word
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <p className="text-slate-600 text-sm text-center mt-8">
+          Powered by AI and Computer Vision
+        </p>
+
+      </div>
+    </div>
+  );
 }
 
-export default App
+export default App;
